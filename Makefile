@@ -14,7 +14,7 @@ else
 endif
 
 # object files have corresponding source files
-OBJS= hello.o vec3.o
+OBJS= hello.o vec3.o camera.o
 CXX=g++
 COMPILER_FLAGS= -g
 INCLUDE= $(SDL_INC) $(OPENGL_INC)
@@ -33,5 +33,6 @@ $(EXEC):	$(OBJS)
 
 clean:
 	rm -f $(EXEC) $(OBJS)
+	rm -f echo $(shell echo *.class | sed 's/\([^ ]*\)\.class/\1.h \1.c/g')
 
 
