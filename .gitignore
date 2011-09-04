@@ -1,2 +1,7 @@
 *.swp
 
+*.o
+*.h
+sdlglsl
+*.c
+!hello.c
