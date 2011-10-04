@@ -1,0 +1,14 @@
+#include "vertexarray.h"
+#include <GL/gl.h>
+
+class Primitive
+
+GLenum pType;
+unsigned int vCount;
+VertexArray &vertexArray;
+
+
+constructor(GLenum pType, unsigned int vCount, VertexArray &vertexarray)
+: vCount(vCount), pType(pType), vertexArray(vertexarray)
+  vertexarray.require(vCount);
+

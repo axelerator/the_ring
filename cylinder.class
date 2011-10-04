@@ -1,0 +1,72 @@
+#include "vec3.h"
+
+class Cylinder
+#include <GL/glu.h>
+#include <math.h>
+#include <stdlib.h>
+#include <iostream>
+
+Vec3 position;
+float height;
+float radius;
+float h_res;
+float w_res;
+float *vertices;
+
+constructor()
+: position(0.0), height(1.0), radius(1.0), h_res(10), w_res(10), vertices(0)
+  unsigned int vertex_count = h_res * w_res;
+  unsigned int float_count = vertex_count * 3;
+  this->vertices = ((float*)malloc(float_count * sizeof(float)));
+  std::cout << "allocated " << float_count << " floats at " << this->vertices << std::endl;
+  init();
+
+destructor()
+  //pointer being freed was not allocated ???
+  free(vertices);
+
+void init()
+  float w_step = (2.0*M_PI)/w_res;
+  float offset_w, offset_h = -0.5;
+  float h_step = 1.0/h_res;
+  float *vs = this->vertices;
+  int foo = 0;
+  for (int i = 0; i < h_res; ++i) {
+    offset_w = 0;
+    for (int t = 0; t < w_res; ++t) {
+      *vs = sin(offset_w);
+      ++vs;
+      *vs = offset_h;
+      ++vs;
+      *vs = cos(offset_w);
+      ++vs;
+      ++foo;
+      offset_w += w_step;
+    }
+    offset_h += h_step;
+  }
+  std::cout << "set " << foo << " vertices" << std::endl;
+  std::cout << "after init :vertices at:" << this->vertices << std::endl;
+
+public void draw()
+  glPushMatrix();
+  glTranslatef(position[0], position[1], position[2]);
+  glScalef((radius*0.5), height, (radius*0.5)); 
+  glBegin(GL_POINTS);
+  float w_step = (2.0*M_PI)/w_res;
+  float offset_w, offset_h = -0.5;
+  float h_step = 1.0/h_res;
+  unsigned int k = 0;
+  for (int i = 0; i < h_res; ++i) {
+    offset_w = 0;
+    for (int t = 0; t < w_res; ++t) {
+      //glVertex3f(sin(offset_w), offset_h, cos(offset_w));
+      glVertex3fv(vertices + k);
+      k += 3;
+      offset_w += w_step;
+    }
+    offset_h += h_step;
+  }
+  glEnd();
+  glPopMatrix();
+

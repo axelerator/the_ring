@@ -1,0 +1,23 @@
+
+class VertexArray
+
+#include <stdlib.h>
+
+unsigned int count;
+float *vertices;
+
+constructor()
+: vertices(0), count(0)
+  ;
+
+destructor()
+  if ( vertices ) {
+    free(vertices);
+  }
+
+public void require(unsigned int amount)
+  count += amount;
+
+void alloc()
+  vertices = (float*) malloc(count * sizeof(float));
+
