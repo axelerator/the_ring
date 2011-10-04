@@ -5,3 +5,4 @@
 sdlglsl
 *.c
 !hello.c
+hello.o
