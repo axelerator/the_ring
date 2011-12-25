@@ -6,3 +6,5 @@ sdlglsl
 *.c
 !hello.c
 hello.o
+hello
+*.cc
