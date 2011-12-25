@@ -1,6 +1,7 @@
 #include "vec3.h"
 
 class Cylinder
+
 #include <GL/glu.h>
 #include <math.h>
 #include <stdlib.h>
@@ -22,7 +23,6 @@ constructor()
   init();
 
 destructor()
-  //pointer being freed was not allocated ???
   free(vertices);
 
 void init()

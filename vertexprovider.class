@@ -1,0 +1,7 @@
+
+#include "vec3.h"
+class VertexProvider
+
+public virtual Vec3 make(unsigned int i)
+  return Vec3(0.0);
+

@@ -2,9 +2,11 @@
 class VertexArray
 
 #include <stdlib.h>
+#include "vertexprovider.h"
 
 unsigned int count;
 float *vertices;
+
 
 constructor()
 : vertices(0), count(0)

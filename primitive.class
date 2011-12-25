@@ -5,10 +5,12 @@ class Primitive
 
 GLenum pType;
 unsigned int vCount;
-VertexArray &vertexArray;
+unsigned int used;
 
+constructor(GLenum pType, unsigned int vCount)
+: vCount(vCount), pType(pType), used(0)
+  ;
 
-constructor(GLenum pType, unsigned int vCount, VertexArray &vertexarray)
-: vCount(vCount), pType(pType), vertexArray(vertexarray)
-  vertexarray.require(vCount);
+public unsigned int next()
+  return (used++);
 

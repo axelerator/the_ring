@@ -1,0 +1,14 @@
+#include "vec3.h"
+#include "primitive.h"
+
+class LocalVertex
+
+
+Vec3 pos;
+unsigned int index;
+
+constructor(Vec3 &pos, Primitive &p)
+: pos(pos), index(p.next())
+  ;
+
+

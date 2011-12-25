@@ -14,7 +14,7 @@ else
 endif
 
 # object files have corresponding source files
-OBJS= hello.o vec3.o camera.o cylinder.o plane.o vertexarray.o primitive.o
+OBJS= hello.o vec3.o camera.o cylinder.o plane.o vertexarray.o primitive.o localvertex.o
 CXX=g++
 COMPILER_FLAGS= -g
 INCLUDE= $(SDL_INC) $(OPENGL_INC)
