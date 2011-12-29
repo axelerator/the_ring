@@ -18,8 +18,8 @@
 #include "camera.h"
 #include "plane.h"
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 786
 #define SCREEN_DEPTH 8
 
 SDL_Surface *Screen;
