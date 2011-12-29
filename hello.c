@@ -145,6 +145,7 @@ int main(int argc, char *argv[]) {
   glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
   glLightfv(GL_LIGHT0, GL_AMBIENT, black);
   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+  float ani_u = 0.0, aniv = 0.0;
   while(running) {
     if(SDL_PollEvent(&E)) {
       switch(E.type) {
@@ -180,9 +181,17 @@ int main(int argc, char *argv[]) {
 
     plane.draw();
     //cylinder.draw();
-    for (int i = 0; i < c_count; ++i) {
-      cs[i]->draw();
+
+  ani_u += 0.001;
+  ani_v += 0.00214;
+  for (int i = 0; i < ch; ++i) {
+    for (int t = 0; t < cw; ++t) {
+      glPushMatrix();
+        glScalef(0.0, sin(ani_v + (0.0006 * i)) * cos(ani_u + (0.00033 * t)) * 0.5 + 0.5);
+        cs[i*cw+t]->draw();
+      glPopMatrix();
     }
+  }
     //ccc->draw();
     cam.animate(0.01);
     glFlush();													// Flush The GL Rendering Pipelines
