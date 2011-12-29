@@ -75,6 +75,25 @@ void reshapeGL(int width, int height)										// Reshape The Window When It's M
   return;																	// Always Return, We're Standard :)
 }
 
+Cylinder **mkCylinders(int cw, int ch) {
+  int c_count = cw * ch;
+  Vec3 p1(0.1, 0.05, 0.1);
+  Cylinder **cs = (Cylinder**)malloc(c_count*sizeof(Cylinder*));
+  float radius = 1.0 / cw;
+  for (int i = 0; i < ch; ++i) {
+    for (int t = 0; t < cw; ++t) {
+      //Vec3 p(-0.5 + (1.0/ch)*i, 0.05, -0.5 + (1.0/cw)*t);
+      //float height = 0.1 + (0.02)*i*t;
+      float height = 0.3;
+      p1[0] = -0.5 + (1.0/ch)*i + radius * 0.5;
+      p1[1] = height * 0.5;
+      p1[2] = -0.5 + (1.0/cw) * t + radius * 0.5;
+      cs[i*cw+t] = new Cylinder(p1, height, radius * 0.9, 2, 16 ); //(p, 0.1f, (1.0/cw), 2, 10 );
+     }
+  } 
+  return cs;
+}
+
 int main(int argc, char *argv[]) {
   SDL_Surface *screen;
   Uint8       *p;
@@ -102,39 +121,20 @@ int main(int argc, char *argv[]) {
   reshapeGL(SCREEN_WIDTH, SCREEN_WIDTH);
   initGL(screen);
   SDL_Event	E;															// And Event Used In The Polling Process
+  float ani_u = 0.0;
+  float ani_v = 0.0;
   Camera cam;
-  Vec3 origin(0.0);
-  
-  Vec3 p1(0.1, 0.05, 0.1);
 
-  //Cylinder cylinder(p1, 0.1f, 0.1f, 10, 20 );
-
-  int cw = 7;
-  int ch = 7;
-  int c_count = cw * ch;
-  Cylinder **cs;
-  cs = (Cylinder**)malloc(c_count*sizeof(Cylinder*));
-  float radius = 1.0 / cw;
-  for (int i = 0; i < ch; ++i) {
-    for (int t = 0; t < cw; ++t) {
-      //Vec3 p(-0.5 + (1.0/ch)*i, 0.05, -0.5 + (1.0/cw)*t);
-      float height = 0.1 + (0.02)*i*t;
-      p1[0] = -0.5 + (1.0/ch)*i + radius * 0.5;
-      p1[1] = height * 0.5;
-      p1[2] = -0.5 + (1.0/cw) * t + radius * 0.5;
-      cs[i*cw+t] = new Cylinder(p1, height, radius * 0.9, 2, 16 ); //(p, 0.1f, (1.0/cw), 2, 10 );
-     }
-  } 
-  //Cylinder cylinder;
-  //Cylinder *ccc = new Cylinder(p1, 0.1f, 0.1f, 2, 3 ); //(origin, 0.1f, (1.0/cw), 2, 10 );
+  int cw = 17;
+  int ch = 17;
+  Cylinder **cs = mkCylinders(cw,ch);
+  const Vec3 origin(0.0);
   Plane plane(1.0, 1.0, origin);
   bool running = true;
   std::cout << "starting main loop" << std::endl;
   //int frame = 0;
-  GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
   GLfloat white[] = { 1.0, 1.0, 1.0, 1.0 };
   GLfloat black[] = { 0.0, 0.0, 0.0, 1.0 };
-  GLfloat mat_shininess[] = { 0.0 };
   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
   glClearColor (0.0, 0.0, 0.0, 0.0);
   glEnable(GL_LIGHTING);
@@ -145,12 +145,18 @@ int main(int argc, char *argv[]) {
   glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
   glLightfv(GL_LIGHT0, GL_AMBIENT, black);
   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-  float ani_u = 0.0, aniv = 0.0;
+  bool anim = true;
   while(running) {
     if(SDL_PollEvent(&E)) {
       switch(E.type) {
         case SDL_KEYDOWN:	
-          running = false;
+          switch ( E.key.keysym.sym ) {
+            case SDLK_ESCAPE:
+              running = false;
+              break;
+            default:
+              anim = !anim;
+          }
       }
     }
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
@@ -178,25 +184,23 @@ int main(int argc, char *argv[]) {
     glEnd();
     glPopMatrix();
     glEnable(GL_LIGHTING);
-
     plane.draw();
     //cylinder.draw();
-
-  ani_u += 0.001;
-  ani_v += 0.00214;
-  for (int i = 0; i < ch; ++i) {
-    for (int t = 0; t < cw; ++t) {
-      glPushMatrix();
-        glScalef(0.0, sin(ani_v + (0.0006 * i)) * cos(ani_u + (0.00033 * t)) * 0.5 + 0.5);
-        cs[i*cw+t]->draw();
-      glPopMatrix();
+    for (int i = 0; i < ch; ++i) {
+      for (int t = 0; t < cw; ++t) {
+        glPushMatrix();
+          glScalef(1.0, (cos((3.17*i)/cw + ani_v) * sin((3.17*t)/cw + ani_u))* 0.7 + 0.8, 1.0);
+          cs[i*cw+t]->draw();
+        glPopMatrix();
+      }
     }
-  }
     //ccc->draw();
-    cam.animate(0.01);
+    if (anim) {
+      ani_u += 0.0001;
+      ani_v += 0.00214;
+      cam.animate(0.01);
+    }
     glFlush();													// Flush The GL Rendering Pipelines
-
-
     SDL_GL_SwapBuffers();										// And Swap The Buffers (We're Double-Buffering, Remember?)
   }
   return 0;

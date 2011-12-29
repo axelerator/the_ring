@@ -15,8 +15,8 @@ constructor()
   ;
 
 public void animate(float delta)
-  angle += delta * 0.03;
+  angle += delta * 0.13;
 
 public void setLookAt()
-  gluLookAt(position[0]*sin(angle), position[1]*sin(angle), position[2]*cos(angle), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  gluLookAt(position[0]*sin(angle), position[1] + sin(angle), position[2]*cos(angle), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 

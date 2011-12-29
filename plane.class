@@ -7,9 +7,9 @@ float width;
 float height;
 unsigned int u_steps;
 unsigned int v_steps;
-Vec3 origin;
+const Vec3 origin;
 
-constructor(float width, float height, Vec3& origin)
+constructor(float width, float height, const Vec3& origin)
 : width(width), height(height), u_steps(10), v_steps(10), origin(origin)
   ;
 
