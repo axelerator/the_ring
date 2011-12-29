@@ -57,6 +57,18 @@ bool initGL(SDL_Surface *S)										// Any OpenGL Initialization Code Goes Here
   glEnable(GL_DEPTH_TEST);									// Enable Depth Testing
   glShadeModel(GL_SMOOTH);									// Select Smooth Shading
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);			// Set Perspective Calculations To Most Accurate
+  GLfloat white[] = { 1.0, 1.0, 1.0, 1.0 };
+  GLfloat black[] = { 0.0, 0.0, 0.0, 1.0 };
+  GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  glShadeModel (GL_SMOOTH);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, black);
+  glMaterialfv(GL_FRONT, GL_SHININESS, black);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, black);
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
   return true;												// Return TRUE (Initialization Successful)
 }
@@ -75,7 +87,7 @@ void reshapeGL(int width, int height)										// Reshape The Window When It's M
   return;																	// Always Return, We're Standard :)
 }
 
-Cylinder **mkCylinders(int cw, int ch) {
+Cylinder **mkCylinders(int cw, int ch, float seed) {
   int c_count = cw * ch;
   Vec3 p1(0.1, 0.05, 0.1);
   Cylinder **cs = (Cylinder**)malloc(c_count*sizeof(Cylinder*));
@@ -84,7 +96,7 @@ Cylinder **mkCylinders(int cw, int ch) {
     for (int t = 0; t < cw; ++t) {
       //Vec3 p(-0.5 + (1.0/ch)*i, 0.05, -0.5 + (1.0/cw)*t);
       //float height = 0.1 + (0.02)*i*t;
-      float height = 0.3;
+      float height = (cos((3.17*i)/cw + (0.003 * seed)) * sin((3.17*t)/cw + (0.0023 * seed)))* 0.2 + 0.3;
       p1[0] = -0.5 + (1.0/ch)*i + radius * 0.5;
       p1[1] = height * 0.5;
       p1[2] = -0.5 + (1.0/cw) * t + radius * 0.5;
@@ -127,24 +139,14 @@ int main(int argc, char *argv[]) {
 
   int cw = 17;
   int ch = 17;
-  Cylinder **cs = mkCylinders(cw,ch);
+  int c_count = cw * ch;
+  Cylinder **cs = mkCylinders(cw,ch, ani_u);
   const Vec3 origin(0.0);
   Plane plane(1.0, 1.0, origin);
   bool running = true;
   std::cout << "starting main loop" << std::endl;
   //int frame = 0;
-  GLfloat white[] = { 1.0, 1.0, 1.0, 1.0 };
-  GLfloat black[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-  glClearColor (0.0, 0.0, 0.0, 0.0);
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  glShadeModel (GL_SMOOTH);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, black);
-  glMaterialfv(GL_FRONT, GL_SHININESS, black);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, black);
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
   bool anim = true;
   while(running) {
     if(SDL_PollEvent(&E)) {
@@ -186,17 +188,18 @@ int main(int argc, char *argv[]) {
     glEnable(GL_LIGHTING);
     plane.draw();
     //cylinder.draw();
+    for (int i = 0; i < c_count; ++i) {
+      delete cs[i];
+    }
+    cs = mkCylinders(cw,ch, ani_u);
     for (int i = 0; i < ch; ++i) {
       for (int t = 0; t < cw; ++t) {
-        glPushMatrix();
-          glScalef(1.0, (cos((3.17*i)/cw + ani_v) * sin((3.17*t)/cw + ani_u))* 0.7 + 0.8, 1.0);
-          cs[i*cw+t]->draw();
-        glPopMatrix();
+        cs[i*cw+t]->draw();
       }
     }
     //ccc->draw();
     if (anim) {
-      ani_u += 0.0001;
+      ani_u += 1.0;
       ani_v += 0.00214;
       cam.animate(0.01);
     }

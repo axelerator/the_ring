@@ -36,8 +36,6 @@ void init()
   this->vertices = ((float*)malloc(float_count * sizeof(float)));
   this->normals = ((float*)malloc(float_count * sizeof(float)));
   this->indices =(GLuint*)malloc( ((h_res - 1) * 2 * (w_res + 1) ) * sizeof(GLuint));
-  std::cout << "allocated " << float_count << " floats at " << this->vertices << std::endl;
-  std::cout << "allocated ind " << ((h_res - 1) * 2 * (w_res + 1) )<< std::endl;
   float w_step = (2.0*M_PI)/w_res;
   float offset_w, offset_h = -0.5;
   float h_step = 1.0/h_res;
@@ -67,7 +65,6 @@ void init()
     this->indices[idx++] = i*w_res ;
     this->indices[idx++] = (i-1)*w_res;
   }
-  std::cout << "index count" << idx << std::endl;
 
 public void draw()
   glEnableClientState(GL_VERTEX_ARRAY);
