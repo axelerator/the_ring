@@ -5,13 +5,17 @@ class Vec3
 
 float c[3];
 
+constructor(const Vec3& v)
+  const float* ic = v.getFloatArray();
+  memcpy(c, ic, 3 * sizeof(float));
+
 constructor(float fx, float fy, float fz)
   c[0] = fx;
   c[1] = fy;
   c[2] = fz;
 
 constructor(const float *v)
-  memcpy(c, v, 3 * sizeof(Vec3));
+  memcpy(c, v, 3 * sizeof(float));
 
 constructor(float fn)
   c[0] = c[1] = c[2] = fn;

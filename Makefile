@@ -15,11 +15,11 @@ endif
 
 # object files have corresponding source files
 OBJS= vec3.o camera.o cylinder.o plane.o vertexarray.o primitive.o localvertex.o hello.o 
-HEADERS=$(shell echo *.class | sed 's/\([^ ]*\)\.class/\1.h \1.cpp/g')
+HEADERS=$(shell echo *.class | sed 's/\([^ ]*\)\.class/\1.h \1.cc/g')
 CXX=g++
 CC=g++
 INCLUDE= $(SDL_INC) $(OPENGL_INC)
-CPPFLAGS= -g $(SDL_LIB) $(INCLUDE)
+CPPFLAGS= -g  $(INCLUDE) -Wall
 LOADLIBES= $(SDL_LIB) $(OPENGL_LIB)
 
 EXEC= hello
@@ -30,11 +30,11 @@ $(EXEC):	$(OBJS)
 
 $(OBJS) : $(HEADERS)
 
-%.cpp %.h: %.class
+%.cc %.h: %.class
 	./cheap $(shell echo $@ | cut -d '.' -f1).class
 
 clean:
 	rm -f $(EXEC) $(OBJS)
-	rm -f echo $(shell echo *.class | sed 's/\([^ ]*\)\.class/\1.h \1.cpp/g')
+	rm -f echo $(shell echo *.class | sed 's/\([^ ]*\)\.class/\1.h \1.cc/g')
 
 

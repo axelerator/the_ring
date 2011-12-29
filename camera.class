@@ -11,12 +11,12 @@ Vec3 position;
 float angle;
 
 constructor()
-: position(3.0)
+: position(2.0)
   ;
 
 public void animate(float delta)
-  angle += delta * 0.01;
+  angle += delta * 0.03;
 
 public void setLookAt()
-  gluLookAt(position[0]*sin(angle), position[1], position[2]*cos(angle), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  gluLookAt(position[0]*sin(angle), position[1]*sin(angle), position[2]*cos(angle), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 

@@ -8,7 +8,7 @@ unsigned int vCount;
 unsigned int used;
 
 constructor(GLenum pType, unsigned int vCount)
-: vCount(vCount), pType(pType), used(0)
+: pType(pType), vCount(vCount), used(0)
   ;
 
 public unsigned int next()

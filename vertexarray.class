@@ -9,7 +9,7 @@ float *vertices;
 
 
 constructor()
-: vertices(0), count(0)
+: count(0), vertices(0)
   ;
 
 destructor()

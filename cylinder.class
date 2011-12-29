@@ -1,4 +1,5 @@
 #include "vec3.h"
+#include <GL/gl.h>
 
 class Cylinder
 
@@ -13,60 +14,87 @@ float radius;
 float h_res;
 float w_res;
 float *vertices;
+float *normals;
+GLuint *indices;
+
+constructor(Vec3& position, float height, float radius, int h_res, int w_res)
+: position(position), height(height), radius(radius), h_res(h_res), w_res(w_res), vertices(0)
+  init();
 
 constructor()
-: position(0.0), height(1.0), radius(1.0), h_res(10), w_res(10), vertices(0)
-  unsigned int vertex_count = h_res * w_res;
-  unsigned int float_count = vertex_count * 3;
-  this->vertices = ((float*)malloc(float_count * sizeof(float)));
-  std::cout << "allocated " << float_count << " floats at " << this->vertices << std::endl;
+: position(0.0), height(1.0), radius(1.0), h_res(10), w_res(20), vertices(0)
   init();
 
 destructor()
   free(vertices);
+  free(indices);
+  free(normals);
 
 void init()
+  unsigned int vertex_count = h_res * w_res;
+  unsigned int float_count = vertex_count * 3;
+  this->vertices = ((float*)malloc(float_count * sizeof(float)));
+  this->normals = ((float*)malloc(float_count * sizeof(float)));
+  this->indices =(GLuint*)malloc( ((h_res - 1) * 2 * (w_res + 1) ) * sizeof(GLuint));
+  std::cout << "allocated " << float_count << " floats at " << this->vertices << std::endl;
+  std::cout << "allocated ind " << ((h_res - 1) * 2 * (w_res + 1) )<< std::endl;
   float w_step = (2.0*M_PI)/w_res;
   float offset_w, offset_h = -0.5;
   float h_step = 1.0/h_res;
   float *vs = this->vertices;
-  int foo = 0;
+  float *ns = this->normals;
   for (int i = 0; i < h_res; ++i) {
     offset_w = 0;
     for (int t = 0; t < w_res; ++t) {
-      *vs = sin(offset_w);
-      ++vs;
+      *vs = *ns = sin(offset_w);
+      ++vs; ++ns;
       *vs = offset_h;
-      ++vs;
-      *vs = cos(offset_w);
-      ++vs;
-      ++foo;
+      *ns = 0.0;
+      ++vs; ++ns;
+      *vs = *ns = cos(offset_w);
+      ++vs; ++ns;
       offset_w += w_step;
     }
     offset_h += h_step;
   }
-  std::cout << "set " << foo << " vertices" << std::endl;
-  std::cout << "after init :vertices at:" << this->vertices << std::endl;
+  //set up indices
+  unsigned int idx = 0;
+  for (int i = 1; i < h_res; ++i) {
+    for (int t = 0; t < w_res; ++t) {
+      this->indices[idx++] = i*w_res + t;
+      this->indices[idx++] = (i-1)*w_res + t;
+    }
+    this->indices[idx++] = i*w_res ;
+    this->indices[idx++] = (i-1)*w_res;
+  }
+  std::cout << "index count" << idx << std::endl;
 
 public void draw()
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
+  //glDisable(GL_LIGHTING);
+  glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
+  glColor3f(0.5, 0.5, 1.0);
+  glVertexPointer(3, GL_FLOAT, 0, this->vertices);
+  glNormalPointer(GL_FLOAT, 0, this->normals);
+  //
   glPushMatrix();
   glTranslatef(position[0], position[1], position[2]);
   glScalef((radius*0.5), height, (radius*0.5)); 
-  glBegin(GL_POINTS);
-  float w_step = (2.0*M_PI)/w_res;
-  float offset_w, offset_h = -0.5;
-  float h_step = 1.0/h_res;
-  unsigned int k = 0;
-  for (int i = 0; i < h_res; ++i) {
-    offset_w = 0;
-    for (int t = 0; t < w_res; ++t) {
-      //glVertex3f(sin(offset_w), offset_h, cos(offset_w));
-      glVertex3fv(vertices + k);
-      k += 3;
-      offset_w += w_step;
-    }
-    offset_h += h_step;
-  }
+  GLuint strip_v_count = 2*w_res + 2;
+  for (int i = 0; i < (h_res-1); ++i) {
+    //std::cout << "glDrawElements(GL_TRIANGLE_STRIP, " << strip_v_count << ", GL_UNSIGNED_INT, this->indices + " << (i*strip_v_count) << " );"  << std::endl;
+    glDrawElements(GL_TRIANGLE_STRIP, strip_v_count, GL_UNSIGNED_INT, this->indices + (i*strip_v_count));
+  } 
+  //glDisable(GL_LIGHTING);
+  //glBegin(GL_LINES);
+  //for (int i = 0; i < (h_res * w_res); ++i) {
+    //glVertex3fv(this->vertices + 3*i);
+    //const Vec3 v(this->vertices + 3*i);
+    //const Vec3 n(this->normals + 3*i);
+    //const Vec3 vn = v + n; 
+    //glVertex3fv(vn.getFloatArray());
+  //}
   glEnd();
   glPopMatrix();
 

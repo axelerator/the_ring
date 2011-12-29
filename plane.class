@@ -10,7 +10,7 @@ unsigned int v_steps;
 Vec3 origin;
 
 constructor(float width, float height, Vec3& origin)
-: width(width), height(height), origin(origin), u_steps(10), v_steps(10)
+: width(width), height(height), u_steps(10), v_steps(10), origin(origin)
   ;
 
 public void draw()
@@ -20,10 +20,11 @@ public void draw()
   float u_offset = -0.5, v_offset = -0.5;
   float u_step = 1.0/u_steps;
   float v_step = 1.0/v_steps;
-  int u,v;
+  unsigned int u,v;
   for (u=0; u < u_steps; ++u) {
     v_offset = -0.5;
     for (v=0; v < v_steps; ++v) {
+      glNormal3f(0.0, 1.0, 0.0);
       glVertex3f(u_offset, 0.0, v_offset);
       glVertex3f(u_offset + u_step, 0.0, v_offset);
       glVertex3f(u_offset + u_step, 0.0, v_offset + v_step);

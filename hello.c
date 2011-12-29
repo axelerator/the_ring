@@ -6,6 +6,7 @@
 #include <stdio.h>															// We're Including The Standard IO Header
 #include <stdlib.h>															// And The Standard Lib Header
 #include <string.h>															// And The String Lib Header
+#include <iostream>
 #endif
 
 #include <GL/gl.h>															// We're Including The OpenGL Header
@@ -50,7 +51,7 @@ bool createWindowGL(int W, int H, int B, Uint32 F) {
 }
 bool initGL(SDL_Surface *S)										// Any OpenGL Initialization Code Goes Here
 {
-  glClearColor(0.0f,0.0f,0.0f,0.5f);							// Black Background
+  glClearColor(0.0f,0.0f,0.0f,0.0f);							// Black Background
   glClearDepth(1.0f);											// Depth Buffer Setup
   glDepthFunc(GL_LEQUAL);										// The Type Of Depth Testing (Less Or Equal)
   glEnable(GL_DEPTH_TEST);									// Enable Depth Testing
@@ -102,10 +103,48 @@ int main(int argc, char *argv[]) {
   initGL(screen);
   SDL_Event	E;															// And Event Used In The Polling Process
   Camera cam;
-  Cylinder cylinder;
   Vec3 origin(0.0);
+  
+  Vec3 p1(0.1, 0.05, 0.1);
+
+  //Cylinder cylinder(p1, 0.1f, 0.1f, 10, 20 );
+
+  int cw = 7;
+  int ch = 7;
+  int c_count = cw * ch;
+  Cylinder **cs;
+  cs = (Cylinder**)malloc(c_count*sizeof(Cylinder*));
+  float radius = 1.0 / cw;
+  for (int i = 0; i < ch; ++i) {
+    for (int t = 0; t < cw; ++t) {
+      //Vec3 p(-0.5 + (1.0/ch)*i, 0.05, -0.5 + (1.0/cw)*t);
+      float height = 0.1 + (0.02)*i*t;
+      p1[0] = -0.5 + (1.0/ch)*i + radius * 0.5;
+      p1[1] = height * 0.5;
+      p1[2] = -0.5 + (1.0/cw) * t + radius * 0.5;
+      cs[i*cw+t] = new Cylinder(p1, height, radius * 0.9, 2, 16 ); //(p, 0.1f, (1.0/cw), 2, 10 );
+     }
+  } 
+  //Cylinder cylinder;
+  //Cylinder *ccc = new Cylinder(p1, 0.1f, 0.1f, 2, 3 ); //(origin, 0.1f, (1.0/cw), 2, 10 );
   Plane plane(1.0, 1.0, origin);
   bool running = true;
+  std::cout << "starting main loop" << std::endl;
+  //int frame = 0;
+  GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+  GLfloat white[] = { 1.0, 1.0, 1.0, 1.0 };
+  GLfloat black[] = { 0.0, 0.0, 0.0, 1.0 };
+  GLfloat mat_shininess[] = { 0.0 };
+  GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  glShadeModel (GL_SMOOTH);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, black);
+  glMaterialfv(GL_FRONT, GL_SHININESS, black);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, black);
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
   while(running) {
     if(SDL_PollEvent(&E)) {
       switch(E.type) {
@@ -115,39 +154,43 @@ int main(int argc, char *argv[]) {
     }
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
     glLoadIdentity();											// Reset The Modelview Matrix
-    //glTranslatef(float(cos(cnt1)), float(sin(cnt2)), -6.0f);	// Translate 6 Units Into The Screen And Use cnt1 And cnt2 To Move The Object
-    //glRotatef(angle, 0.0f, 1.0f, 0.0f);							// Rotate On The Y-Axis By angle
-    //angle += 0.0001;
+    //std::cout << "frame" << (frame++) << std::endl;
     cam.setLookAt();
-    /*
-       for (rot1=0; rot1<2; rot1++)								// 2 Passes
-       {
-       glRotatef(90.0f,0.0f,1.0f,0.0f);						// Rotate 90 Degrees On The Y-Axis
-       glRotatef(180.0f,1.0f,0.0f,0.0f);						// Rotate 180 Degrees On The X-Axis
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-       for (rot2=0; rot2<2; rot2++)							// 2 Passes
-       {
-       glRotatef(180.0f,0.0f,1.0f,0.0f);					// Rotate 180 Degrees On The Y-Axis
-       glBegin(GL_TRIANGLES);								// Begin Drawing Triangles
-       glColor3f (1.f, 0.f, 0.f);						// 1st Color (Red) ...
-       glVertex3f( 0.0f, 1.0f, 0.0f);				// ...For The 1st Vertex
-       glColor3f (0.f, 1.f, 0.f);						// 2nd Color (Green) ...
-       glVertex3f(-1.0f,-1.0f, 1.0f);				// ...For The 2nd Vertex
-       glColor3f (0.f, 0.f, 1.f);						// And 3rd Color (Blue) ...
-       glVertex3f( 1.0f,-1.0f, 1.0f);				// ...For The 3rd Vertex
-       glEnd();											// Done Drawing Triangles
-       }
-       }
-       cnt1 += 0.0001;
-       */
+    glDisable(GL_LIGHTING);
+    glPushMatrix();
+    glScalef(0.5, 0.5, 0.5);
+    glBegin(GL_LINES);
+      glColor3f(1.0, 1.0, 1.0);
+      glVertex3f(0.0, -1.0, 0.0);
+      glVertex3f(0.0, 1.0, 0.0);
+      glColor3f(0.3, 0.3, 0.6);
+      glVertex3f( 1.0, -1.0,  1.0);
+      glVertex3f( 1.0,  1.0,  1.0);
+      glVertex3f( 1.0, -1.0, -1.0);
+      glVertex3f( 1.0,  1.0, -1.0);
+      glVertex3f(-1.0, -1.0,  1.0);
+      glVertex3f(-1.0,  1.0,  1.0);
+      glVertex3f(-1.0, -1.0, -1.0);
+      glVertex3f(-1.0,  1.0, -1.0);
+    glEnd();
+    glPopMatrix();
+    glEnable(GL_LIGHTING);
+
     plane.draw();
-    cylinder.draw();
+    //cylinder.draw();
+    for (int i = 0; i < c_count; ++i) {
+      cs[i]->draw();
+    }
+    //ccc->draw();
     cam.animate(0.01);
     glFlush();													// Flush The GL Rendering Pipelines
 
 
     SDL_GL_SwapBuffers();										// And Swap The Buffers (We're Double-Buffering, Remember?)
   }
+  return 0;
 }
 
 
