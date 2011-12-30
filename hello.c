@@ -17,6 +17,7 @@
 #include "cylinder.h"
 #include "camera.h"
 #include "plane.h"
+#include "helper.h"
 
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 786
@@ -94,13 +95,11 @@ Cylinder **mkCylinders(int cw, int ch, float seed) {
   float radius = 1.0 / cw;
   for (int i = 0; i < ch; ++i) {
     for (int t = 0; t < cw; ++t) {
-      //Vec3 p(-0.5 + (1.0/ch)*i, 0.05, -0.5 + (1.0/cw)*t);
-      //float height = 0.1 + (0.02)*i*t;
       float height = (cos((3.17*i)/cw + (0.003 * seed)) * sin((3.17*t)/cw + (0.0023 * seed)))* 0.2 + 0.3;
       p1[0] = -0.5 + (1.0/ch)*i + radius * 0.5;
       p1[1] = height * 0.5;
       p1[2] = -0.5 + (1.0/cw) * t + radius * 0.5;
-      cs[i*cw+t] = new Cylinder(p1, height, radius * 0.9, 2, 16 ); //(p, 0.1f, (1.0/cw), 2, 10 );
+      cs[i*cw+t] = new Cylinder(p1, height, radius * 0.7, 2, 16 ); //(p, 0.1f, (1.0/cw), 2, 10 );
      }
   } 
   return cs;
@@ -137,17 +136,18 @@ int main(int argc, char *argv[]) {
   float ani_v = 0.0;
   Camera cam;
 
-  int cw = 17;
-  int ch = 17;
+  int cw = 7;
+  int ch = 7;
   int c_count = cw * ch;
   Cylinder **cs = mkCylinders(cw,ch, ani_u);
   const Vec3 origin(0.0);
-  Plane plane(1.0, 1.0, origin);
+  Plane plane(1.0, 1.0, origin, 70, 70);
   bool running = true;
   std::cout << "starting main loop" << std::endl;
   //int frame = 0;
   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-  bool anim = true;
+  bool anim = false;
+  Helper helper;
   while(running) {
     if(SDL_PollEvent(&E)) {
       switch(E.type) {
@@ -167,24 +167,6 @@ int main(int argc, char *argv[]) {
     cam.setLookAt();
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-    glDisable(GL_LIGHTING);
-    glPushMatrix();
-    glScalef(0.5, 0.5, 0.5);
-    glBegin(GL_LINES);
-      glColor3f(1.0, 1.0, 1.0);
-      glVertex3f(0.0, -1.0, 0.0);
-      glVertex3f(0.0, 1.0, 0.0);
-      glColor3f(0.3, 0.3, 0.6);
-      glVertex3f( 1.0, -1.0,  1.0);
-      glVertex3f( 1.0,  1.0,  1.0);
-      glVertex3f( 1.0, -1.0, -1.0);
-      glVertex3f( 1.0,  1.0, -1.0);
-      glVertex3f(-1.0, -1.0,  1.0);
-      glVertex3f(-1.0,  1.0,  1.0);
-      glVertex3f(-1.0, -1.0, -1.0);
-      glVertex3f(-1.0,  1.0, -1.0);
-    glEnd();
-    glPopMatrix();
     glEnable(GL_LIGHTING);
     plane.draw();
     //cylinder.draw();
@@ -197,6 +179,7 @@ int main(int argc, char *argv[]) {
         cs[i*cw+t]->draw();
       }
     }
+    helper.draw();
     //ccc->draw();
     if (anim) {
       ani_u += 1.0;

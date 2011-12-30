@@ -15,6 +15,7 @@ float h_res;
 float w_res;
 float *vertices;
 float *normals;
+float *colors;
 GLuint *indices;
 
 constructor(Vec3& position, float height, float radius, int h_res, int w_res)
@@ -29,6 +30,7 @@ destructor()
   free(vertices);
   free(indices);
   free(normals);
+  free(colors);
 
 void init()
   unsigned int vertex_count = h_res * w_res;
@@ -36,21 +38,31 @@ void init()
   this->vertices = ((float*)malloc(float_count * sizeof(float)));
   this->normals = ((float*)malloc(float_count * sizeof(float)));
   this->indices =(GLuint*)malloc( ((h_res - 1) * 2 * (w_res + 1) ) * sizeof(GLuint));
+  this->colors = ((float*)malloc(vertex_count * 4 * sizeof(float)));
   float w_step = (2.0*M_PI)/w_res;
   float offset_w, offset_h = -0.5;
   float h_step = 1.0/h_res;
   float *vs = this->vertices;
   float *ns = this->normals;
+  float *cs = this->colors;
+  float g_delta = 1.0/h_res;
+  float gray = 0.0;
   for (int i = 0; i < h_res; ++i) {
     offset_w = 0;
     for (int t = 0; t < w_res; ++t) {
+      gray = 0.7 + fminf(g_delta * i, 0.3);
       *vs = *ns = sin(offset_w);
-      ++vs; ++ns;
+      *cs = gray;
+      ++vs; ++ns; ++cs;
       *vs = offset_h;
       *ns = 0.0;
-      ++vs; ++ns;
+      *cs = gray;
+      ++vs; ++ns; ++cs;
       *vs = *ns = cos(offset_w);
-      ++vs; ++ns;
+      *cs = gray;
+      ++vs; ++ns; ++cs;
+      *cs = gray;
+      ++cs;
       offset_w += w_step;
     }
     offset_h += h_step;
@@ -69,12 +81,15 @@ void init()
 public void draw()
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
   //glDisable(GL_LIGHTING);
   glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
-  glColor3f(0.5, 0.5, 1.0);
+  //glColor3f(0.5, 0.5, 1.0);
   glVertexPointer(3, GL_FLOAT, 0, this->vertices);
   glNormalPointer(GL_FLOAT, 0, this->normals);
+  glColorPointer(4, GL_FLOAT, 0.0, this->colors);
   //
+  glDisable(GL_LIGHTING);
   glPushMatrix();
   glTranslatef(position[0], position[1], position[2]);
   glScalef((radius*0.5), height, (radius*0.5)); 

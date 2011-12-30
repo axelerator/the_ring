@@ -14,7 +14,7 @@ else
 endif
 
 # object files have corresponding source files
-OBJS= vec3.o camera.o cylinder.o plane.o vertexarray.o primitive.o localvertex.o hello.o 
+OBJS= vec3.o camera.o cylinder.o plane.o vertexarray.o primitive.o localvertex.o ray.o helper.o hello.o 
 HEADERS=$(shell echo *.class | sed 's/\([^ ]*\)\.class/\1.h \1.cc/g')
 CXX=g++
 CC=g++

@@ -1,38 +1,100 @@
 #include "vec3.h"
+#include <GL/gl.h>
 
 class Plane
+
 #include <GL/glu.h>
+#include <math.h>
+#include <stdlib.h>
+#include <iostream>
 
 float width;
 float height;
 unsigned int u_steps;
 unsigned int v_steps;
 const Vec3 origin;
+float *vertices;
+float *colors;
+GLuint *indices;
+
+constructor(float width, float height, const Vec3& origin, unsigned int u_steps, unsigned int v_steps)
+: width(width), height(height), u_steps(u_steps), v_steps(v_steps), origin(origin)
+  init();
 
 constructor(float width, float height, const Vec3& origin)
-: width(width), height(height), u_steps(10), v_steps(10), origin(origin)
-  ;
+: width(width), height(height), u_steps(2), v_steps(2), origin(origin)
+  init();
+
+destructor()
+  free(vertices);
+  free(indices);
+  free(colors);
+
+float color(float u, float v)
+  //return cos(u * 2.0 * M_PI * 1.0) * cos(v * 2.0 * M_PI * 1.0);
+  //return 1.0 - (cos(u * 1.0 * M_PI * 1.0) * cos(v * 2.0 * M_PI * 1.0) * 0.5 + 0.5);
+  //return (cos(u * 2.0 * M_PI) * cos(v * 2.0 * M_PI)* 0.5 + 0.5);
+  float scale = 7.0;
+  float uv = sin((u) * 2.0 * M_PI * scale + (M_PI_2 * scale) )  * 0.5 + 0.5;
+  float vv = sin((v) * 2.0 * M_PI * scale + (M_PI_2 * scale)) * 0.5 + 0.5;
+  //float uv = sin((u +2.0) * 2.0 * M_PI * scale) * 0.5 + 0.5;
+  //float vv = sin((v+2.0) * 2.0 * M_PI * scale) * 0.5 + 0.5;
+  return fmaxf(1.0 - (uv * vv), 0.75);
+
+void init()
+  unsigned int vertex_count = u_steps * v_steps;
+  this->vertices = ((float*)malloc(vertex_count * 3 * sizeof(float)));
+  this->colors = ((float*)malloc(vertex_count * 4 * sizeof(float)));
+  unsigned int index_count = ((u_steps - 1) * 2 * v_steps);
+  this->indices =(GLuint*)malloc( index_count * sizeof(GLuint));
+  float *f = this->vertices;
+  float *c = this->colors;
+  float u_delta = 1.0/(u_steps - 1);
+  float v_delta = 1.0/(v_steps - 1);
+  float col;
+  for (unsigned int u = 0; u < u_steps; ++u) {
+    for (unsigned int v = 0; v < v_steps; ++v) {
+      col = color(u * u_delta, v * v_delta);
+      *f = u * u_delta - 0.5;
+      *c = col;
+      ++f; ++c;
+      *f = 0.0;
+      *c = col;
+      ++f; ++c;
+      *f = v * v_delta - 0.5;
+      *c = col;
+      ++f; ++c;
+      *c = 1.0;
+      ++c;
+    }
+  }
+  unsigned int idx = 0;
+  for (unsigned int u = 1; u < u_steps; ++u) {
+    for (unsigned int v = 0; v < v_steps; ++v) {
+      this->indices[idx++] = u*v_steps + v;
+      this->indices[idx++] = (u-1)*v_steps + v;
+    }
+  }
 
 public void draw()
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  //glDisable(GL_LIGHTING);
+  glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
+  //
+  glColor3f(0.5, 0.5, 1.0);
+  glVertexPointer(3, GL_FLOAT, 0, this->vertices);
+  glColorPointer(4, GL_FLOAT, 0.0, this->colors);
+  //
+  glDisable(GL_LIGHTING);
   glPushMatrix();
+  glNormal3f(0.0, 1.0, 0.0);
   glTranslatef(origin[0], origin[1], origin[2]);
-  glBegin(GL_QUADS);
-  float u_offset = -0.5, v_offset = -0.5;
-  float u_step = 1.0/u_steps;
-  float v_step = 1.0/v_steps;
-  unsigned int u,v;
-  for (u=0; u < u_steps; ++u) {
-    v_offset = -0.5;
-    for (v=0; v < v_steps; ++v) {
-      glNormal3f(0.0, 1.0, 0.0);
-      glVertex3f(u_offset, 0.0, v_offset);
-      glVertex3f(u_offset + u_step, 0.0, v_offset);
-      glVertex3f(u_offset + u_step, 0.0, v_offset + v_step);
-      glVertex3f(u_offset , 0.0, v_offset + v_step);
-      v_offset += v_step;
-    }
-    u_offset += u_step;
-  }
-  glEnd();
-  glPopMatrix();
+  GLuint strip_v_count = 2*v_steps;
+  for (unsigned int i = 0; i < (u_steps-1); ++i) {
+    glDrawElements(GL_TRIANGLE_STRIP, strip_v_count, GL_UNSIGNED_INT, this->indices + (i*strip_v_count));
+  } 
+  glPushMatrix();
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 
