@@ -1,0 +1,7 @@
+Just a small OpenGL programm showing some rotating cylinders.
+
+To build it you need to symlink to the cheap compiler avaliable at:
+
+https://github.com/axelerator/cheap
+
+Currently uses version 0.1
