@@ -136,8 +136,8 @@ int main(int argc, char *argv[]) {
   float ani_v = 0.0;
   Camera cam;
 
-  int cw = 7;
-  int ch = 7;
+  int cw = 17;
+  int ch = 17;
   int c_count = cw * ch;
   Cylinder **cs = mkCylinders(cw,ch, ani_u);
   const Vec3 origin(0.0);
